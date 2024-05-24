@@ -1,0 +1,12 @@
+{
+  "name": "rockethero",
+  "version": "0.1.0",
+  "license": "GPL-3.0-or-later",
+  "description": "Serve Rocket Pool withdrawal addresses given a beacon chain withdrawal credentials (minipool addresses)",
+  "type": "module",
+  "dependencies": {
+    "dotenv": "16",
+    "ethers": "6",
+    "lmdb": "2"
+  }
+}
