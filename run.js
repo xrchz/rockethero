@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import { ethers } from 'ethers'
 import { open } from 'lmdb'
+import { chmodSync, unlinkSync } from 'node:fs'
 import http from 'node:http'
 import express from 'express'
 
@@ -98,4 +99,9 @@ app.post('/', async (req, res, next) => {
 })
 
 const server = http.createServer(app)
-server.listen(process.env.PORT || 8888)
+const portOrSocket = process.env.PORT || 8888
+if (typeof portOrSocket == 'string' && portOrSocket.endsWith('.socket')) {
+  server.on('listening', () => chmodSync(portOrSocket, 0o777))
+  process.on('SIGINT', () => { unlinkSync(portOrSocket); process.exit() })
+}
+server.listen(portOrSocket)
