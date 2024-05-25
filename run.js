@@ -86,7 +86,7 @@ app.post('/', async (req, res, next) => {
           const minipool = new ethers.Contract(address, ['function getNodeAddress() view returns (address)'], provider)
           const nodeAddress = await minipool.getNodeAddress() // TODO: could also cache this
           const withdrawalAddress = db.get(['withdrawalAddressFor', nodeAddress.toLowerCase()])
-          result.rp_withdrawal_address = withdrawalAddress
+          result.rp_withdrawal_address = withdrawalAddress || nodeAddress
         }
         else result.rp_withdrawal_address = nullAddress
         return result
