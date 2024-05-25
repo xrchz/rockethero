@@ -76,6 +76,11 @@ app.use(express.json())
 const nullAddress = '0x'.padEnd(42, '0')
 const addressRE = new RegExp('0x[0-9a-fA-F]{40}')
 
+const minipoolABI = [
+  'function getNodeAddress() view returns (address)',
+  'function getNodeDepositBalance() view returns (uint256)'
+]
+
 app.post('/', async (req, res, next) => {
   try {
     if (!(req.body instanceof Array && req.body.every(x => typeof x == 'string' && addressRE.test(x))))
@@ -84,9 +89,11 @@ app.post('/', async (req, res, next) => {
       req.body.map(async address => {
         const result = {withdrawal_credential: address}
         if (await rocketMinipoolManager.getMinipoolExists(address)) {
-          const minipool = new ethers.Contract(address, ['function getNodeAddress() view returns (address)'], provider)
-          const nodeAddress = await minipool.getNodeAddress() // TODO: could also cache this
+          const minipool = new ethers.Contract(address, minipoolABI, provider)
+          const nodeAddress = await minipool.getNodeAddress() // TODO: could also cache these
+          const nodeDepositBalance = await minipool.getNodeDepositBalance()
           const withdrawalAddress = db.get(['withdrawalAddressFor', nodeAddress.toLowerCase()])
+          result.rp_minipool_deposited = nodeDepositBalance.toString()
           result.rp_withdrawal_address = withdrawalAddress || nodeAddress
         }
         else result.rp_withdrawal_address = nullAddress
