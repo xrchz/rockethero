@@ -94,7 +94,7 @@ app.post('/', async (req, res, next) => {
     )
     return res.json(output)
   }
-  catch (e) => { next(e) }
+  catch (e) { next(e) }
 })
 
 const server = http.createServer(app)
